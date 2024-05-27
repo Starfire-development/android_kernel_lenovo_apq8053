@@ -576,6 +576,14 @@ config SND_SOC_TAS2552
 config SND_SOC_TAS5086
 	tristate "Texas Instruments TAS5086 speaker amplifier"
 	depends on I2C
+	
+config SND_SOC_TAS5805M
+	tristate "Texas Instruments TAS5805M Mono Audio amplifier"
+	depends on I2C
+	
+config SND_SOC_TAS5782M
+	tristate "Texas Instruments TAS5782M Mono Audio amplifier"
+	depends on I2C
 
 config SND_SOC_TLV320AIC23
 	tristate

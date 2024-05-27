@@ -73,6 +73,7 @@ const struct file_operations himax_proc_vendor_ops = {
 	.read = himax_vendor_read,
 };
 
+
 static ssize_t himax_attn_read(struct file *file, char *buf,
 	size_t len, loff_t *pos)
 {

@@ -59,6 +59,10 @@ static struct syscore_ops gpio_keys_syscore_pm_ops;
 
 static void gpio_keys_syscore_resume(void);
 
+//liuluan add for switch of camera&mute key
+struct gpio_keys_button *button_camera;
+struct gpio_keys_button *button_mute;
+
 /*
  * SYSFS interface for enabling/disabling keys and switches:
  *
@@ -278,6 +282,23 @@ ATTR_SHOW_FN(switches, EV_SW, false);
 ATTR_SHOW_FN(disabled_keys, EV_KEY, true);
 ATTR_SHOW_FN(disabled_switches, EV_SW, true);
 
+//liuluan add for switch of camera&mute key start
+static ssize_t gpio_keys_show_camera_switches(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	char ret;
+	ret = __gpio_get_value(button_camera->gpio) ? 1 : 0;
+	return sprintf(buf, "%u\n", ret);
+}
+static ssize_t gpio_keys_show_mute_switches(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	char ret;
+	ret = __gpio_get_value(button_mute->gpio) ? 1 : 0;
+	return sprintf(buf, "%u\n", ret);
+}
+//liuluan add for switch of camera&mute key end
+
 /*
  * ATTRIBUTES:
  *
@@ -286,6 +307,9 @@ ATTR_SHOW_FN(disabled_switches, EV_SW, true);
  */
 static DEVICE_ATTR(keys, S_IRUGO, gpio_keys_show_keys, NULL);
 static DEVICE_ATTR(switches, S_IRUGO, gpio_keys_show_switches, NULL);
+//liuluan add for switch of camera&mute key
+static DEVICE_ATTR(camera_switches, S_IRUGO, gpio_keys_show_camera_switches, NULL);
+static DEVICE_ATTR(mute_switches, S_IRUGO, gpio_keys_show_mute_switches, NULL);
 
 #define ATTR_STORE_FN(name, type)					\
 static ssize_t gpio_keys_store_##name(struct device *dev,		\
@@ -323,6 +347,8 @@ static DEVICE_ATTR(disabled_switches, S_IWUSR | S_IRUGO,
 static struct attribute *gpio_keys_attrs[] = {
 	&dev_attr_keys.attr,
 	&dev_attr_switches.attr,
+	&dev_attr_camera_switches.attr, //liuluan add for switch of camera key
+	&dev_attr_mute_switches.attr, //liuluan add for switch of mute key
 	&dev_attr_disabled_keys.attr,
 	&dev_attr_disabled_switches.attr,
 	NULL,
@@ -344,8 +370,33 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 	if (type == EV_ABS) {
 		if (state)
 			input_event(input, type, button->code, button->value);
-	} else {
-		input_event(input, type, button->code, !!state);
+	} else{
+		if(button->code == 91){
+			if(state){
+				input_event(input, type, KEY_F3, 1);
+				input_sync(input);
+				input_event(input, type, KEY_F3, 0);
+			}else{
+				input_event(input, type, button->code, 1);
+				input_sync(input);
+				input_event(input, type, button->code, 0);
+			}
+				
+		}
+		else if(button->code == 87){
+			if(state){
+				input_event(input, type, KEY_F4, 1);
+				input_sync(input);
+				input_event(input, type, KEY_F4, 0);
+			}else{
+				input_event(input, type, button->code, 1);//open camera
+				input_sync(input);
+				input_event(input, type, button->code, 0);
+			}
+				
+		}
+		else
+			input_event(input, type, button->code, !!state);
 	}
 	input_sync(input);
 }
@@ -376,9 +427,14 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
 
 	if (bdata->button->wakeup)
 		pm_stay_awake(bdata->input->dev.parent);
-	if (bdata->timer_debounce)
+	if (bdata->timer_debounce){
+		if ((bdata->button->code == 87) || (bdata->button->code == 91)){
 		mod_timer(&bdata->timer,
+			jiffies + msecs_to_jiffies(100));
+		}else
+			mod_timer(&bdata->timer,
 			jiffies + msecs_to_jiffies(bdata->timer_debounce));
+	}
 	else
 		schedule_work(&bdata->work);
 
@@ -518,6 +574,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
 	}
 
 	input_set_capability(input, button->type ?: EV_KEY, button->code);
+	input_set_capability(input, button->type ?: EV_KEY, KEY_F3);
+	input_set_capability(input, button->type ?: EV_KEY, KEY_F4);
 
 	/*
 	 * Install custom action to cancel debounce timer and
@@ -706,6 +764,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
 					&button->debounce_interval))
 			button->debounce_interval = 5;
 	}
+//liuluan add for switch of camera&mute key
+	button_camera = &pdata->buttons[0];
+	button_mute = &pdata->buttons[1];
 
 	if (pdata->nbuttons == 0)
 		return ERR_PTR(-EINVAL);

@@ -24,12 +24,14 @@
 	#define HIMAX_PROC_INT_EN_FILE		"int_en"
 	#define HIMAX_PROC_LAYOUT_FILE		"layout"
 
+
 	static struct proc_dir_entry *himax_touch_proc_dir;
 	static struct proc_dir_entry *himax_proc_debug_level_file;
 	static struct proc_dir_entry *himax_proc_vendor_file;
 	static struct proc_dir_entry *himax_proc_attn_file;
 	static struct proc_dir_entry *himax_proc_int_en_file;
 	static struct proc_dir_entry *himax_proc_layout_file;
+
 
 	uint8_t HX_PROC_SEND_FLAG;
 
