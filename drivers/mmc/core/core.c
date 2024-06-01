@@ -4403,9 +4403,16 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 		mmc_send_if_cond(host, host->ocr_avail);
 
 	/* Order's important: probe SDIO, then SD, then MMC */
-	if (!(host->caps2 & MMC_CAP2_NO_SDIO))
+	if (!(host->caps2 & MMC_CAP2_NO_SDIO)) {
 		if (!mmc_attach_sdio(host))
 			return 0;
+		else
+			if (strcmp(mmc_hostname(host), "mmc1") == 0) {
+				msleep(500);
+				if (!mmc_attach_sdio(host))
+					return 0;
+			}
+	}
 
 	if (!(host->caps2 & MMC_CAP2_NO_SD))
 		if (!mmc_attach_sd(host))

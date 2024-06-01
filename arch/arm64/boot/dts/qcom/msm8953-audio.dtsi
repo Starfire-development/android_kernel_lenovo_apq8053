@@ -42,10 +42,12 @@
 		reg = <0xc051000 0x4>,
 			<0xc051004 0x4>,
 			<0xc055000 0x4>,
+			<0xc056000 0x4>,
 			<0xc052000 0x4>;
 		reg-names = "csr_gp_io_mux_mic_ctl",
 			"csr_gp_io_mux_spkr_ctl",
 			"csr_gp_io_lpaif_pri_pcm_pri_mode_muxsel",
+			"csr_gp_io_lpaif_sec_pcm_sec_mode_muxsel",
 			"csr_gp_io_mux_quin_ctl";
 
 		qcom,msm-ext-pa = "primary";
@@ -93,7 +95,7 @@
 				"msm-compress-dsp", "msm-pcm-hostless",
 				"msm-pcm-afe", "msm-lsm-client",
 				"msm-pcm-routing", "msm-pcm-dsp-noirq";
-		asoc-cpu = <&dai_pri_auxpcm>,
+		asoc-cpu = <&dai_pri_auxpcm>, <&dai_sec_auxpcm>,
 			<&dai_mi2s0>, <&dai_mi2s1>,
 			<&dai_mi2s2>, <&dai_mi2s3>,
 			<&dai_mi2s4>, <&dai_mi2s5>,
@@ -108,7 +110,7 @@
 			<&afe_loopback_tx>,
 			<&proxy_rx>, <&proxy_tx>;
 
-		asoc-cpu-names = "msm-dai-q6-auxpcm.1",
+		asoc-cpu-names = "msm-dai-q6-auxpcm.1","msm-dai-q6-auxpcm.2",
 				"msm-dai-q6-mi2s.0", "msm-dai-q6-mi2s.1",
 				"msm-dai-q6-mi2s.2", "msm-dai-q6-mi2s.3",
 				"msm-dai-q6-mi2s.4", "msm-dai-q6-mi2s.6",

@@ -24,6 +24,7 @@
 &qpnp_smbcharger {
 	qcom,external-typec;
 	qcom,typec-psy-name = "typec";
+	qcom,charging-disabled;
 };
 
 &mdss_dsi0 {

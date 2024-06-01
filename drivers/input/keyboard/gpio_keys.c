@@ -373,6 +373,31 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 		if (state)
 			input_event(input, type, button->code, button->value);
 	} else {
+		if(button->code == 91){
+			if(state){
+				input_event(input, type, KEY_F3, 1);
+				input_sync(input);
+				input_event(input, type, KEY_F3, 0);
+			}else{
+				input_event(input, type, button->code, 1);
+				input_sync(input);
+				input_event(input, type, button->code, 0);
+			}
+
+		}
+		else if(button->code == 87){
+			if(state){
+				input_event(input, type, KEY_F4, 1);
+				input_sync(input);
+				input_event(input, type, KEY_F4, 0);
+			}else{
+				input_event(input, type, button->code, 1);//open camera
+				input_sync(input);
+				input_event(input, type, button->code, 0);
+			}
+
+		}
+		else
 		input_event(input, type, button->code, state);
 	}
 	input_sync(input);
@@ -398,9 +423,14 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
 	if (bdata->button->wakeup)
 		pm_stay_awake(bdata->input->dev.parent);
 
-	mod_delayed_work(system_wq,
-			 &bdata->work,
-			 msecs_to_jiffies(bdata->software_debounce));
+	if ((bdata->button->code == 87) || (bdata->button->code == 91))
+		mod_delayed_work(system_wq,
+				 &bdata->work,
+				 msecs_to_jiffies(100));
+	else
+		mod_delayed_work(system_wq,
+				 &bdata->work,
+				 msecs_to_jiffies(bdata->software_debounce));
 
 	return IRQ_HANDLED;
 }
@@ -552,6 +582,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
 	}
 
 	input_set_capability(input, button->type ?: EV_KEY, button->code);
+	input_set_capability(input, button->type ?: EV_KEY, KEY_F3);
+	input_set_capability(input, button->type ?: EV_KEY, KEY_F4);
 
 	/*
 	 * Install custom action to cancel release timer and

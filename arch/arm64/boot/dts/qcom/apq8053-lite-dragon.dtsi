@@ -112,6 +112,38 @@
 		compatible = "qcom,qca402";
 		endpoints = <1>;
 	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		input-name = "gpio-keys";
+		pinctrl-names = "tlmm_gpio_key_active","tlmm_gpio_key_suspend";
+		pinctrl-0 = <&gpio_key_active>;
+		pinctrl-1 = <&gpio_key_suspend>;
+
+		camera_switch {
+			label = "camera_switch";
+			gpios = <&tlmm 87 0x1>;
+			linux,input-type = <1>;
+			linux,code = <87>;
+			debounce-interval = <15>;
+		};
+
+		mute {
+			label = "mute";
+			gpios = <&tlmm 86 0x1>;
+			linux,input-type = <1>;
+			linux,code = <91>;
+			debounce-interval = <15>;
+		};
+
+		vol_up {
+			label = "volume_up";
+			gpios = <&tlmm 85 0x1>;
+			linux,input-type = <1>;
+			linux,code = <115>;
+			debounce-interval = <15>;
+		};
+	};
 };
 
 &cdc_pdm_comp_lines_act {
@@ -181,6 +213,7 @@
 
 	/delete-property/ qcom,cdc-us-euro-gpios;
 	qcom,msm-hs-micbias-type = "internal";
+	qcom,msm-mbhc-hphl-swh = <1>;
 
 	qcom,audio-routing =
 		"RX_BIAS", "MCLK",
@@ -199,6 +232,37 @@
 
 	qcom,quat-mi2s-gpios = <&cdc_quat_mi2s_gpios>;
 	qcom,cdc-dmic-gpios = <&cdc_dmic_gpios>;
+
+	qcom,msm-gpios =
+		"pri_i2s",
+		"quat_i2s",
+		"quin_i2s";
+	qcom,pinctrl-names =
+		"all_off",
+		"pri_i2s_act",
+		"quat_i2s_act",
+		"pri_i2s_act_quat_i2s_act",
+		"quin_i2s_act",
+		"pri_i2s_act_quin_i2s_act",
+		"quat_i2s_act_quin_i2s_act",
+		"pri_i2s_act_quat_i2s_act_quin_i2s_act";
+	pinctrl-names =
+		"all_off",
+		"pri_i2s_act",
+		"quat_i2s_act",
+		"pri_i2s_act_quat_i2s_act",
+		"quin_i2s_act",
+		"pri_i2s_act_quin_i2s_act",
+		"quat_i2s_act_quin_i2s_act",
+		"pri_i2s_act_quat_i2s_act_quin_i2s_act";
+	pinctrl-0 = <&cdc_dmic0_clk_sus &cdc_dmic0_data_sus &sec_tlmm_lines_sus &pri_tlmm_lines_sus &pri_tlmm_ws_sus>;
+	pinctrl-1 = <&cdc_dmic0_clk_act &cdc_dmic0_data_act &sec_tlmm_lines_sus &pri_tlmm_lines_sus &pri_tlmm_ws_sus>;	
+	pinctrl-2 = <&cdc_dmic0_clk_sus &cdc_dmic0_data_sus &sec_tlmm_lines_act &pri_tlmm_lines_sus &pri_tlmm_ws_sus>;
+	pinctrl-3 = <&cdc_dmic0_clk_act &cdc_dmic0_data_act &sec_tlmm_lines_act &pri_tlmm_lines_sus &pri_tlmm_ws_sus>;
+	pinctrl-4 = <&cdc_dmic0_clk_sus &cdc_dmic0_data_sus &sec_tlmm_lines_sus &pri_tlmm_lines_act &pri_tlmm_ws_act>;
+	pinctrl-5 = <&cdc_dmic0_clk_act &cdc_dmic0_data_act &sec_tlmm_lines_sus &pri_tlmm_lines_act &pri_tlmm_ws_act>;	
+	pinctrl-6 = <&cdc_dmic0_clk_sus &cdc_dmic0_data_sus &sec_tlmm_lines_act &pri_tlmm_lines_act &pri_tlmm_ws_act>;
+	pinctrl-7 = <&cdc_dmic0_clk_act &cdc_dmic0_data_act &sec_tlmm_lines_act &pri_tlmm_lines_act &pri_tlmm_ws_act>;
 
 	/delete-property/ asoc-wsa-codec-names;
 	/delete-property/ asoc-wsa-codec-prefixes;
@@ -284,19 +348,26 @@
 };
 
 &mdss_dsi0 {
-	qcom,dsi-pref-prim-pan = <&dsi_boyi_hx83100a_800p_video>;
+	qcom,dsi-pref-prim-pan = <&dsi_hx83100a_800p_video>;
 	pinctrl-names = "mdss_default", "mdss_sleep";
 	pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
 	pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend>;
 
-	vdd-supply = <&pm8953_l10>;
+	/delete-property/ vdd-supply;
 	vddio-supply = <&pm8953_l6>;
 	lab-supply = <&lab_regulator>;
 	ibb-supply = <&ibb_regulator>;
 
 	qcom,platform-te-gpio = <&tlmm 24 0>;
 	qcom,platform-reset-gpio = <&tlmm 61 0>;
-	qcom,platform-bklight-en-gpio = <&tlmm 100 0>;
+	qcom,platform-bklight-en-gpio = <&tlmm 95 0>;
+	qcom,ext-vdd-gpio = <&tlmm 100 0>;
+
+	qcom,platform-lane-config = [00 00 ff 0f
+			00 00 ff 0f
+			00 00 ff 0f
+			00 00 ff 0f
+			00 00 ff 8f];
 };
 
 &mdss_dsi1 {
